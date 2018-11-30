@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="lzp">
+
+
+
+<meta name="description" content="粗略看了下BeautifulSoup，准备练习爬取百度的搜索，以备后续使用。     百度的搜索结果其实是十分有特点， 在看了返回的Html原文以后可以很随便写出来 1.百度搜索URL我在百度随便搜索关键词BeautifulSoup 就可以看到百度的搜索url为   https://www.baidu.com/s?wd=BeautifulSoup&amp;amp;XXXXXXXXX  我们很容易可以看出我">
+<meta name="keywords" content="Exercises">
+<meta property="og:type" content="article">
+<meta property="og:title" content="百度搜索结果爬取">
+<meta property="og:url" content="http://yoursite.com/2018/11/30/百度搜索结果爬取/index.html">
+<meta property="og:site_name" content="lzp&#39;s blogs">
+<meta property="og:description" content="粗略看了下BeautifulSoup，准备练习爬取百度的搜索，以备后续使用。     百度的搜索结果其实是十分有特点， 在看了返回的Html原文以后可以很随便写出来 1.百度搜索URL我在百度随便搜索关键词BeautifulSoup 就可以看到百度的搜索url为   https://www.baidu.com/s?wd=BeautifulSoup&amp;amp;XXXXXXXXX  我们很容易可以看出我">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-11-30T09:36:27.591Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="百度搜索结果爬取">
+<meta name="twitter:description" content="粗略看了下BeautifulSoup，准备练习爬取百度的搜索，以备后续使用。     百度的搜索结果其实是十分有特点， 在看了返回的Html原文以后可以很随便写出来 1.百度搜索URL我在百度随便搜索关键词BeautifulSoup 就可以看到百度的搜索url为   https://www.baidu.com/s?wd=BeautifulSoup&amp;amp;XXXXXXXXX  我们很容易可以看出我">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="lzp&#39;s blogs" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>百度搜索结果爬取 | lzp&#39;s blogs</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">lzp</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">仰望大哥，脚踩屌丝，大佬在哪</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false">
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/lzppp" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">lzp</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">lzp</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">仰望大哥，脚踩屌丝，大佬在哪</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/lzppp" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-百度搜索结果爬取" class="article article-type-post" itemscope="" itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/11/30/百度搜索结果爬取/" class="article-date">
+      <time datetime="2018-11-30T09:04:08.000Z" itemprop="datePublished">2018-11-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      百度搜索结果爬取
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Exercises/">Exercises</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>粗略看了下<code>BeautifulSoup</code>，准备练习爬取百度的搜索，以备后续使用。    </p>
+<p>百度的搜索结果其实是十分有特点， 在看了返回的Html原文以后可以很随便写出来</p>
+<h3 id="1-百度搜索URL"><a href="#1-百度搜索URL" class="headerlink" title="1.百度搜索URL"></a>1.百度搜索URL</h3><p>我在百度随便搜索关键词<code>BeautifulSoup</code> 就可以看到百度的搜索url为</p>
+<blockquote>
+<p> <a href="https://www.baidu.com/s?wd=BeautifulSoup&amp;XXXXXXXXX" target="_blank" rel="noopener">https://www.baidu.com/s?wd=BeautifulSoup&amp;XXXXXXXXX</a></p>
+</blockquote>
+<p>我们很容易可以看出我们的URL就是<code>https://www.baidu.com/s?wd=</code></p>
+<h3 id="2-百度的搜索结果html原文"><a href="#2-百度的搜索结果html原文" class="headerlink" title="2. 百度的搜索结果html原文"></a>2. 百度的搜索结果html原文</h3><p>根据浏览器的调试功能可以很轻易的找出百度每条搜索结果的html代码为</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"result c-container "</span> <span class="attr">id</span>=<span class="string">"1"</span> <span class="attr">srcid</span>=<span class="string">"1599"</span> <span class="attr">tpl</span>=<span class="string">"se_com_default"</span> <span class="attr">data-click</span>=<span class="string">"&#123;&amp;quot;rsv_bdr&amp;quot;:&amp;quot;0&amp;quot;,&amp;quot;p5&amp;quot;:1&#125;"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h3</span> <span class="attr">class</span>=<span class="string">"t c-title-en"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">a</span> <span class="attr">data-click</span>=<span class="string">"&#123;'F':'778317EA','F1':'9D73F1E4','F2':'4CA6DE6B','F3':'54E5343F','T':'1543569046','y':'FBFFF9F5'&#125;"</span> <span class="attr">href</span>=<span class="string">"http://www.baidu.com/link?url=FAwy75exYe8mNFRV4wgYMcDUnAKoX8yBLOSN7RkAyniwM-5sFBwju3qt9epNC16C4s6y0G-2yMH_MPrU9718t4hnCO0n9qqSzzNS1rmn2cm&amp;amp;ck=0.0.0.0.0.0.0.0&amp;amp;shh=www.baidu.com&amp;amp;sht=baiduhome_pg"</span> <span class="attr">target</span>=<span class="string">"_blank"</span>&gt;</span><span class="tag">&lt;<span class="name">em</span>&gt;</span>Beautiful Soup<span class="tag">&lt;/<span class="name">em</span>&gt;</span> Documentation — <span class="tag">&lt;<span class="name">em</span>&gt;</span>Beautiful Soup<span class="tag">&lt;/<span class="name">em</span>&gt;</span> 4.4.0 ...</span><br><span class="line">        <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"c-row c-gap-top-small"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"general_image_pic c-span6"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"c-img6"</span> <span class="attr">style</span>=<span class="string">"height:75px"</span> <span class="attr">href</span>=<span class="string">"http://www.baidu.com/link?url=FAwy75exYe8mNFRV4wgYMcDUnAKoX8yBLOSN7RkAyniwM-5sFBwju3qt9epNC16C4s6y0G-2yMH_MPrU9718t4hnCO0n9qqSzzNS1rmn2cm&amp;amp;ck=0.0.0.0.0.0.0.0&amp;amp;shh=www.baidu.com&amp;amp;sht=baiduhome_pg"</span> <span class="attr">target</span>=<span class="string">"_blank"</span>&gt;</span><span class="tag">&lt;<span class="name">img</span> <span class="attr">class</span>=<span class="string">"c-img c-img6"</span> <span class="attr">src</span>=<span class="string">"https://ss0.baidu.com/73t1bjeh1BF3odCf/it/u=325232897,2575160110&amp;amp;fm=85&amp;amp;s=0F87C5005DF7CDEB083DE1CB010060B1"</span> <span class="attr">style</span>=<span class="string">"height:75px;"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"c-span18 c-span-last"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"m"</span>&gt;</span>查看此网页的中文翻译，请点击&amp;nbsp;</span><br><span class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"http://www.baidu.com/link?url=LD9ASPT3kiwXjR_dIpiCc_grO8maTutdVc0m6Kk2jM6I5zpec_VW23HxQZ0hHCaegSN9Ra0ZRYD80nWQjzbf39u74N6JCBZLMY8VMWTJFtN1yGtub8R6fl3atO21lhWeeF-10Y29NpYMi3NtO_K7dTMZz-jF-MRpotV5ll1ItAa7tyVOEWNw93FEw0_hus269w5MJMhmvEVY94FJ7w2HExnTL0HKkWCNNYu9sYNH-K7zLGyVwP3v_WKNyKjzpMZB&amp;amp;ck=1216.4.0.0.0.230.412.0&amp;amp;shh=www.baidu.com&amp;amp;sht=baiduhome_pg"</span> <span class="attr">target</span>=<span class="string">"_blank"</span> <span class="attr">class</span>=<span class="string">"m"</span>&gt;</span>翻译此页</span><br><span class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"c-abstract c-abstract-en"</span>&gt;</span></span><br><span class="line">                from bs4 import <span class="tag">&lt;<span class="name">em</span>&gt;</span>BeautifulSoup<span class="tag">&lt;/<span class="name">em</span>&gt;</span> soup = <span class="tag">&lt;<span class="name">em</span>&gt;</span>BeautifulSoup<span class="tag">&lt;/<span class="name">em</span>&gt;</span>(html_doc, 'html.parser') print(soup.prettify()...</span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"f13"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">target</span>=<span class="string">"_blank"</span> <span class="attr">href</span>=<span class="string">"http://www.baidu.com/link?url=FAwy75exYe8mNFRV4wgYMcDUnAKoX8yBLOSN7RkAyniwM-5sFBwju3qt9epNC16C4s6y0G-2yMH_MPrU9718t4hnCO0n9qqSzzNS1rmn2cm&amp;amp;ck=0.0.0.0.0.0.0.0&amp;amp;shh=www.baidu.com&amp;amp;sht=baiduhome_pg"</span> <span class="attr">class</span>=<span class="string">"c-showurl"</span> <span class="attr">style</span>=<span class="string">"text-decoration:none;"</span>&gt;</span>https://www.crummy.com/softwar...&amp;nbsp;</span><br><span class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"c-tools"</span> <span class="attr">id</span>=<span class="string">"tools_2933620390008844611_1"</span> <span class="attr">data-tools</span>=<span class="string">"&#123;&amp;quot;title&amp;quot;:&amp;quot;Beautiful Soup Documentation — Beautiful Soup 4.4.0 ...&amp;quot;,&amp;quot;url&amp;quot;:&amp;quot;http://www.baidu.com/link?url=FAwy75exYe8mNFRV4wgYMcDUnAKoX8yBLOSN7RkAyniwM-5sFBwju3qt9epNC16C4s6y0G-2yMH_MPrU9718t4hnCO0n9qqSzzNS1rmn2cm&amp;quot;&#125;"</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"c-tip-icon"</span>&gt;</span><span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"c-icon c-icon-triangle-down-g"</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"c-icons-outer"</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"c-icons-inner"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">span</span>&gt;</span>&amp;nbsp;-&amp;nbsp;</span><br><span class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">data-click</span>=<span class="string">"&#123;'rsv_snapshot':'1'&#125;"</span> <span class="attr">href</span>=<span class="string">"http://cache.baiducontent.com/c?m=9d78d513d99316fc1fabcf2a4a48c0676915dd247ec3975521dbc90ed5261a564615fea662675513d3b22d2746f01617fdf041236a5c3df6c69cce0f8efbc5355fdf74733647d2064cb244e8895b7580268d0cb4fe04bce6a665d9b9d2a485120c94&amp;amp;p=9b759a46d6c615f010be9b7c6151a5&amp;amp;newp=aa769a4782934eac58e8d4354f4f88231610db2151d4d0106b82c825d7331b001c3bbfb423261000d3ce7c6201a94a5be8f732763d0923a3dda5c91d9fb4c57479dc&amp;amp;user=baidu&amp;amp;fm=sc&amp;amp;query=BeautifulSoup&amp;amp;qid=8f9f7bf2000084c8&amp;amp;p1=1"</span> <span class="attr">target</span>=<span class="string">"_blank"</span> <span class="attr">class</span>=<span class="string">"m"</span>&gt;</span>百度快照</span><br><span class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>可以很容易看出包含结果的div的类是<code>c-container</code> ，其中的<code>&lt;h3&gt;</code>是标题，剩下的<code>c-abstract</code>是我们想要的摘要和百度收录时间(如果有)。    </p>
+<p>那么网页的原始URL呢？我们可以通过访问标题的链接，通过百度的重定向获取到。</p>
+<h3 id="3-百度搜索结果翻页"><a href="#3-百度搜索结果翻页" class="headerlink" title="3. 百度搜索结果翻页"></a>3. 百度搜索结果翻页</h3><p>这里我直接参考了别人的处理结果，在URL后面加入<code>&amp;pn=</code>参数，</p>
+<blockquote>
+<p><a href="https://www.baidu.com/s?wd=BeautifulSoup&amp;pn=10" target="_blank" rel="noopener">https://www.baidu.com/s?wd=BeautifulSoup&amp;pn=10</a></p>
+</blockquote>
+<p><code>pn=10</code>代表第二页，百度的每页条数是10条，那么，我们爬取第K页的时候，应该填写10*(K-1)</p>
+<h3 id="4-最后代码"><a href="#4-最后代码" class="headerlink" title="4. 最后代码"></a>4. 最后代码</h3><p>最后的代码可参考<a href="https://github.com/lzppp/Exercises/blob/master/getbaidu/getBaidu.py" target="_blank" rel="noopener">github</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2018/11/30/百度搜索结果爬取/">百度搜索结果爬取</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">lzp</a></p>
+        <p><span>发布时间:</span>2018-11-30, 17:04:08</p>
+        <p><span>最后更新:</span>2018-11-30, 17:36:27</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2018/11/30/百度搜索结果爬取/" title="百度搜索结果爬取">http://yoursite.com/2018/11/30/百度搜索结果爬取/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2018/11/30/百度搜索结果爬取/　　作者: lzp" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/11/28/linux练习/">
+                    linux练习
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-百度搜索URL"><span class="toc-number">1.</span> <span class="toc-text">1.百度搜索URL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-百度的搜索结果html原文"><span class="toc-number">2.</span> <span class="toc-text">2. 百度的搜索结果html原文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-百度搜索结果翻页"><span class="toc-number">3.</span> <span class="toc-text">3. 百度搜索结果翻页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-最后代码"><span class="toc-number">4.</span> <span class="toc-text">4. 最后代码</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"百度搜索结果爬取　| lzp's blogs　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/11/28/linux练习/" title="下一篇: linux练习">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/11/30/百度搜索结果爬取/">百度搜索结果爬取</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/28/linux练习/">linux练习</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/28/我要抄什么/">我要抄什么</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2018 lzp
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style="display:none">
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style="display:none">
+                        <span id="page-visit" title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
